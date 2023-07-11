@@ -1,5 +1,6 @@
 package com.sparta.springlv2project.controller;
 
+import com.sparta.springlv2project.dto.CreateCommentDto;
 import com.sparta.springlv2project.dto.boardDto.PostRequestDto;
 import com.sparta.springlv2project.dto.boardDto.PostResponseDto;
 import com.sparta.springlv2project.service.BoardService;
@@ -33,6 +34,11 @@ public class BoardController {
     @GetMapping("/user")
     public List<PostResponseDto> getUserPost(HttpServletRequest req) {
         return boardService.getUserPost(req);
+    }
+
+    @GetMapping("/{boardId}")
+    public PostResponseDto getPostById(@PathVariable Long boardId) {
+        return boardService.getPostById(boardId);
     }
 
     @PatchMapping("/{boardId}")
