@@ -48,7 +48,7 @@ public class AuthFilter implements Filter {
                 // 토큰 검증
                 if (!jwtUtil.validateToken(token)) {
                     ((HttpServletResponse) response).setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                    throw new IllegalArgumentException("Token Error");
+                    throw new IllegalArgumentException( "토큰이 유효하지 않습니다.");
 
                 }
 

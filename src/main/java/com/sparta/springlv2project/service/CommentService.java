@@ -40,7 +40,7 @@ public class CommentService {
         Comment comment = commentRepository.findById(commentId).orElseThrow(
                 () -> new IllegalArgumentException("존재하지 않는 댓글입니다.")
         );
-        if (!user.getRole().equals(UserRoleEnum.ADMIN)) compareUser(user, comment.getUser());
+        if (!user.getRole().getAuthority().equals(UserRoleEnum.ADMIN.getAuthority())) compareUser(user, comment.getUser());
         comment.setContents(requestDto.getContents());
         return requestDto;
     }
@@ -50,7 +50,7 @@ public class CommentService {
         Comment comment = commentRepository.findById(commentId).orElseThrow(
                 () -> new IllegalArgumentException("존재하지 않는 댓글입니다.")
         );
-        if (!user.getRole().equals(UserRoleEnum.ADMIN)) compareUser(user, comment.getUser());
+        if (!user.getRole().getAuthority().equals(UserRoleEnum.ADMIN.getAuthority())) compareUser(user, comment.getUser());
         Post post = comment.getPost();
 //        System.out.println(new PostResponseDto(post).getCommentDtoList());
         //양방향 객체 지향을 위한 remove
@@ -62,6 +62,6 @@ public class CommentService {
     //요청 user와 comment user가 동일한지
     public void compareUser(User user1, User user2) {
         if (!user1.equals(user2))
-            throw new IllegalArgumentException("본인이 작성한 댓글이 아닙니다");
+            throw new IllegalArgumentException("작성자만 삭제/수정할 수 있습니다.");
     }
 }

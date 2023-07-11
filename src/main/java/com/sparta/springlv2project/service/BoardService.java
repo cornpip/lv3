@@ -61,7 +61,7 @@ public class BoardService {
 
         } else {
             //유저의 권한이 ADMIN이 아니면 아이디가 같은 유저만 수정 가능
-            Optional<Post> post = boardRepository.findByIdAndUserId(boardId, user.getId());
+            Optional<Post> post = boardRepository.findByPostIdAndUsername(boardId, user.getUsername());
 
             if (post.isPresent()) {
                 post.get().update(requestDto);
@@ -75,23 +75,19 @@ public class BoardService {
 
     // ADMIN 게시글 삭제
     public Long deleteBoardById(Long boardId, User user) {
-
         if (user.getRole().equals(UserRoleEnum.ADMIN)) {
             Post post = boardRepository.findById(boardId).orElseThrow(
                     () -> new IllegalArgumentException("게시글이 존재하지 않습니다"));
             boardRepository.delete(post);
         } else {
             // 유저의 권한이 ADMIN이 아니면 아이디가 같은 유저만 삭제 가능
-            Optional<Post> post = boardRepository.findByIdAndUserId(boardId, user.getId());
-
+            Optional<Post> post = boardRepository.findByPostIdAndUsername(boardId, user.getUsername());
             if (post.isPresent()) {
                 boardRepository.delete(post.get());
-
             } else {
                 throw new IllegalArgumentException("접 근 불 가");
             }
         }
-
         return boardId;
     }
 
@@ -108,7 +104,7 @@ public class BoardService {
     private Post comparePostUserAndUser(Long boardId, String username) {
         Post post = boardRepository.findById(boardId).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 boardId 입니다."));
         if (Objects.equals(post.getUsername(), username)) return post;
-        throw new IllegalArgumentException("권한이 없는 유저입니다.");
+        throw new IllegalArgumentException("작성자만 삭제/수정할 수 있습니다.");
     }
 
 }

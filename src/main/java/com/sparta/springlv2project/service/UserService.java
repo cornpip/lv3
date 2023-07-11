@@ -36,7 +36,7 @@ public class UserService {
         // 회원 중복 확인
         Optional<User> checkUsername = userRepository.findByUsername(username);
         if (checkUsername.isPresent()) {
-            throw new IllegalArgumentException("중복된 사용자가 존재합니다.");
+            throw new IllegalArgumentException("중복된 username 입니다.");
         }
         // 이름과 비밀번호 양식
         validationCheck(username, requestDto.getPassword());
@@ -60,10 +60,10 @@ public class UserService {
         String password = requestDto.getPassword();
 
         User user = userRepository.findByUsername(username).orElseThrow(
-                ()->new IllegalArgumentException("등록된 사용자가 없습니다.")
+                ()->new IllegalArgumentException("회원을 찾을 수 없습니다.")
         );
         if(!passwordEncoder.matches(password, user.getPassword())){
-            throw new IllegalArgumentException("패스워드가 일치하지 않습니다.");
+            throw new IllegalArgumentException("회원을 찾을 수 없습니다.");
 
         }
         issueNewToken(username, res);
