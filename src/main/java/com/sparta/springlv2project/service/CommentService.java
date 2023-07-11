@@ -5,6 +5,7 @@ import com.sparta.springlv2project.dto.boardDto.PostResponseDto;
 import com.sparta.springlv2project.entity.Comment;
 import com.sparta.springlv2project.entity.Post;
 import com.sparta.springlv2project.entity.User;
+import com.sparta.springlv2project.entity.UserRoleEnum;
 import com.sparta.springlv2project.repository.BoardRepository;
 import com.sparta.springlv2project.repository.CommentRepository;
 import jakarta.servlet.http.HttpServletRequest;
@@ -13,6 +14,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Optional;
 
 @Service
 @AllArgsConstructor
@@ -31,17 +34,23 @@ public class CommentService {
         return requestDto;
     }
 
+    // ADMIN 댓글 수정 가능하게
     @Transactional
-    public CreateCommentDto patchCommentById(Long commentId, CreateCommentDto requestDto, HttpServletRequest req) {
-        Comment comment = commentRepository.findById(commentId).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 댓글입니다."));
-        compareUser(req, comment.getUser());
+    public CreateCommentDto patchCommentById(Long commentId, CreateCommentDto requestDto, User user) {
+        Comment comment = commentRepository.findById(commentId).orElseThrow(
+                () -> new IllegalArgumentException("존재하지 않는 댓글입니다.")
+        );
+        if (!user.getRole().equals(UserRoleEnum.ADMIN)) compareUser(user, comment.getUser());
         comment.setContents(requestDto.getContents());
         return requestDto;
     }
 
-    public ResponseEntity<String> deleteCommentById(Long commentId, HttpServletRequest req) {
-        Comment comment = commentRepository.findById(commentId).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 댓글입니다."));
-        compareUser(req, comment.getUser());
+    // ADMIN 댓글 삭제 가능하게
+    public ResponseEntity<String> deleteCommentById(Long commentId, User user) {
+        Comment comment = commentRepository.findById(commentId).orElseThrow(
+                () -> new IllegalArgumentException("존재하지 않는 댓글입니다.")
+        );
+        if (!user.getRole().equals(UserRoleEnum.ADMIN)) compareUser(user, comment.getUser());
         Post post = comment.getPost();
 //        System.out.println(new PostResponseDto(post).getCommentDtoList());
         //양방향 객체 지향을 위한 remove
@@ -51,9 +60,8 @@ public class CommentService {
     }
 
     //요청 user와 comment user가 동일한지
-    public void compareUser(HttpServletRequest req, User user) {
-        User reqUser = (User) req.getAttribute("user");
-        if (!reqUser.equals(user))
+    public void compareUser(User user1, User user2) {
+        if (!user1.equals(user2))
             throw new IllegalArgumentException("본인이 작성한 댓글이 아닙니다");
     }
 }

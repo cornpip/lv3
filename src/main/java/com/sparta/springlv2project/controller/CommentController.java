@@ -1,6 +1,7 @@
 package com.sparta.springlv2project.controller;
 
 import com.sparta.springlv2project.dto.CreateCommentDto;
+import com.sparta.springlv2project.entity.User;
 import com.sparta.springlv2project.service.CommentService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.AllArgsConstructor;
@@ -21,11 +22,11 @@ public class CommentController {
 
     @PatchMapping("/{commentId}")
     public CreateCommentDto patchCommentById(@PathVariable Long commentId, @RequestBody CreateCommentDto requestDto, HttpServletRequest req) {
-        return commentService.patchCommentById(commentId, requestDto, req);
+        return commentService.patchCommentById(commentId, requestDto, (User) req.getAttribute("user"));
     }
 
     @DeleteMapping("/{commentId}")
     public ResponseEntity<String> deleteCommentById(@PathVariable Long commentId, HttpServletRequest req) {
-        return commentService.deleteCommentById(commentId, req);
+        return commentService.deleteCommentById(commentId, (User) req.getAttribute("user"));
     }
 }

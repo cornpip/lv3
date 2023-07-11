@@ -38,4 +38,9 @@ public class Post extends Timestamped {
     public void removeCommentList(Comment comment){
         this.commentList.remove(comment);
     }
+
+    public void update(PostRequestDto requestDto) {
+        this.subject = requestDto.getSubject();
+        this.contents = requestDto.getContents();
+    }
 }

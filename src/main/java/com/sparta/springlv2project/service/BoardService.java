@@ -1,11 +1,10 @@
 package com.sparta.springlv2project.service;
 
-import com.sparta.springlv2project.dto.CreateCommentDto;
-import com.sparta.springlv2project.dto.boardDto.PostResponseDto;
 import com.sparta.springlv2project.dto.boardDto.PostRequestDto;
-import com.sparta.springlv2project.entity.Comment;
+import com.sparta.springlv2project.dto.boardDto.PostResponseDto;
 import com.sparta.springlv2project.entity.Post;
 import com.sparta.springlv2project.entity.User;
+import com.sparta.springlv2project.entity.UserRoleEnum;
 import com.sparta.springlv2project.jwt.JwtUtil;
 import com.sparta.springlv2project.repository.BoardRepository;
 import com.sparta.springlv2project.repository.CommentRepository;
@@ -17,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 @Service
 public class BoardService {
@@ -49,20 +49,49 @@ public class BoardService {
         return boardRepository.findAllByUsername(userInfo.getSubject()).stream().map(PostResponseDto::new).toList();
     }
 
-
+    // ADMIN 게시글 수정
     @Transactional
-    public PostResponseDto patchBoardById(Long boardId, PostRequestDto requestDto, HttpServletRequest req) {
-        Claims userInfo = getUserInfoFromRequest(req);
-        Post post = comparePostUserAndUser(boardId, userInfo.getSubject());
-        post.setSubject(requestDto.getSubject());
-        post.setContents(requestDto.getContents());
-        return new PostResponseDto(post);
+    public PostResponseDto patchBoardById(Long boardId, PostRequestDto requestDto, User user) {
+
+        if (user.getRole().equals(UserRoleEnum.ADMIN)) {
+            Post post = boardRepository.findById(boardId).orElseThrow(
+                    () -> new IllegalArgumentException("게시글이 존재하지 않습니다"));
+            post.update(requestDto);
+            return new PostResponseDto(post);
+
+        } else {
+            //유저의 권한이 ADMIN이 아니면 아이디가 같은 유저만 수정 가능
+            Optional<Post> post = boardRepository.findByIdAndUserId(boardId, user.getId());
+
+            if (post.isPresent()) {
+                post.get().update(requestDto);
+                return new PostResponseDto(post.get());
+
+            } else {
+                throw new IllegalArgumentException("접 근 불 가");
+            }
+        }
     }
 
-    public Long deleteBoardById(Long boardId, HttpServletRequest req) {
-        Claims userInfo = getUserInfoFromRequest(req);
-        Post post = comparePostUserAndUser(boardId, userInfo.getSubject());
-        boardRepository.deleteById(boardId);
+    // ADMIN 게시글 삭제
+    public Long deleteBoardById(Long boardId, User user) {
+
+        if (user.getRole().equals(UserRoleEnum.ADMIN)) {
+            Post post = boardRepository.findById(boardId).orElseThrow(
+                    () -> new IllegalArgumentException("게시글이 존재하지 않습니다"));
+            boardRepository.delete(post);
+        } else {
+            // 유저의 권한이 ADMIN이 아니면 아이디가 같은 유저만 삭제 가능
+            Optional<Post> post = boardRepository.findByIdAndUserId(boardId, user.getId());
+
+            if (post.isPresent()) {
+                boardRepository.delete(post.get());
+
+            } else {
+                throw new IllegalArgumentException("접 근 불 가");
+            }
+        }
+
         return boardId;
     }
 
