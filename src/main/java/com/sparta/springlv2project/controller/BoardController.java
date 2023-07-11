@@ -3,6 +3,7 @@ package com.sparta.springlv2project.controller;
 import com.sparta.springlv2project.dto.CreateCommentDto;
 import com.sparta.springlv2project.dto.boardDto.PostRequestDto;
 import com.sparta.springlv2project.dto.boardDto.PostResponseDto;
+import com.sparta.springlv2project.entity.User;
 import com.sparta.springlv2project.service.BoardService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
@@ -43,11 +44,11 @@ public class BoardController {
 
     @PatchMapping("/{boardId}")
     public PostResponseDto patchBoardById(@PathVariable Long boardId, @RequestBody PostRequestDto postRequestDto, HttpServletRequest req) {
-        return boardService.patchBoardById(boardId, postRequestDto, req);
+        return boardService.patchBoardById(boardId, postRequestDto, (User) req.getAttribute("user"));
     }
 
     @DeleteMapping("/{boardId}")
     public Long deleteBoardById(@PathVariable Long boardId, HttpServletRequest req) {
-        return boardService.deleteBoardById(boardId, req);
+        return boardService.deleteBoardById(boardId, (User) req.getAttribute("user"));
     }
 }

@@ -28,9 +28,9 @@ public class UserController {
         System.out.println("signupRequestDto.getPassword() = " + signupRequestDto.getPassword());
         System.out.println("signupRequestDto.getUsername() = " + signupRequestDto.getUsername());
         userService.signup(signupRequestDto);
-        String redirectUrl = "/user/login-page";
-        URI location = URI.create(HostUrl+redirectUrl);
-        return ResponseEntity.status(HttpStatus.FOUND).location(location).body("회원 가입이 완료되었습니다 !");
+//        String redirectUrl = "/user/login-page";
+//        URI location = URI.create(HostUrl+redirectUrl);
+        return ResponseEntity.status(HttpStatus.OK).body("회원 가입이 완료되었습니다 !");
     }
     @PostMapping("/login")
     public ResponseEntity<String> login(@RequestBody LoginRequestDto loginRequestDto, HttpServletResponse res){
@@ -39,4 +39,6 @@ public class UserController {
         URI location = URI.create(HostUrl+redirectUrl);
          return ResponseEntity.status(HttpStatus.FOUND).location(location).body("로그인 성공 !");
     }
+
+
 }
