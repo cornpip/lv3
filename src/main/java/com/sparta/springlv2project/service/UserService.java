@@ -60,7 +60,7 @@ public class UserService {
     }
     public void validationCheck(String username, String password){
         String nameVal= "^[a-z0-9]{4,10}$";
-        String passVal="^[a-zA-Z0-9]{8,15}$";
+        String passVal="^[a-zA-Z0-9`~!@#$%^&*()_=+|{};:,.<>/?]*$]{8,15}$";
         if(!Pattern.matches(nameVal, username)) throw new IllegalArgumentException("이름이 올바르지 않습니다. 소문자와 숫자로 4~10자를 입력해주세요.");
         if(!Pattern.matches(passVal, password)) throw new IllegalArgumentException("비밀번호가 올바르지 않습니다.영문 대,소문자와 숫자로 8~15자를 입력해주세요.");
     }
