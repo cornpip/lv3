@@ -1,12 +1,17 @@
 package com.sparta.springlv2project.service;
 
+import com.sparta.springlv2project.dto.CreateCommentDto;
 import com.sparta.springlv2project.dto.boardDto.PostResponseDto;
 import com.sparta.springlv2project.dto.boardDto.PostRequestDto;
+import com.sparta.springlv2project.entity.Comment;
 import com.sparta.springlv2project.entity.Post;
+import com.sparta.springlv2project.entity.User;
 import com.sparta.springlv2project.jwt.JwtUtil;
 import com.sparta.springlv2project.repository.BoardRepository;
+import com.sparta.springlv2project.repository.CommentRepository;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,10 +23,13 @@ public class BoardService {
 
 
     private final BoardRepository boardRepository;
+    private final CommentRepository commentRepository;
     private final JwtUtil jwtUtil;
 
-    public BoardService(BoardRepository boardRepository, JwtUtil jwtUtil) {
+    @Autowired
+    public BoardService(BoardRepository boardRepository, CommentRepository commentRepository, JwtUtil jwtUtil) {
         this.boardRepository = boardRepository;
+        this.commentRepository = commentRepository;
         this.jwtUtil = jwtUtil;
     }
 
@@ -41,6 +49,7 @@ public class BoardService {
         return boardRepository.findAllByUsername(userInfo.getSubject()).stream().map(PostResponseDto::new).toList();
     }
 
+
     @Transactional
     public PostResponseDto patchBoardById(Long boardId, PostRequestDto requestDto, HttpServletRequest req) {
         Claims userInfo = getUserInfoFromRequest(req);
@@ -57,6 +66,11 @@ public class BoardService {
         return boardId;
     }
 
+    public PostResponseDto getPostById(Long boardId) {
+        Post post = boardRepository.findById(boardId).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 boardId 입니다."));
+        return new PostResponseDto(post);
+    }
+
     private Claims getUserInfoFromRequest(HttpServletRequest req) {
         String Token = jwtUtil.getTokenFromRequest(req);
         return jwtUtil.getUserInfoFromToken(jwtUtil.substringToken(Token));
@@ -67,4 +81,5 @@ public class BoardService {
         if (Objects.equals(post.getUsername(), username)) return post;
         throw new IllegalArgumentException("권한이 없는 유저입니다.");
     }
+
 }
