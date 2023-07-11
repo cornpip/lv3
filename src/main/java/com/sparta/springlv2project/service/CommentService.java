@@ -34,14 +34,14 @@ public class CommentService {
     @Transactional
     public CreateCommentDto patchCommentById(Long commentId, CreateCommentDto requestDto, HttpServletRequest req) {
         Comment comment = commentRepository.findById(commentId).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 댓글입니다."));
-        comparePostUserAndUser(req, comment.getUser());
+        compareUser(req, comment.getUser());
         comment.setContents(requestDto.getContents());
         return requestDto;
     }
 
     public ResponseEntity<String> deleteCommentById(Long commentId, HttpServletRequest req) {
         Comment comment = commentRepository.findById(commentId).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 댓글입니다."));
-        comparePostUserAndUser(req, comment.getUser());
+        compareUser(req, comment.getUser());
         Post post = comment.getPost();
 //        System.out.println(new PostResponseDto(post).getCommentDtoList());
         //양방향 객체 지향을 위한 remove
@@ -50,7 +50,8 @@ public class CommentService {
         return ResponseEntity.status(HttpStatus.OK).body("삭제 성공");
     }
 
-    public void comparePostUserAndUser(HttpServletRequest req, User user) {
+    //요청 user와 comment user가 동일한지
+    public void compareUser(HttpServletRequest req, User user) {
         User reqUser = (User) req.getAttribute("user");
         if (!reqUser.equals(user))
             throw new IllegalArgumentException("본인이 작성한 댓글이 아닙니다");
