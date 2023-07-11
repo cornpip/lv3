@@ -26,8 +26,8 @@ public class Post extends Timestamped {
     @Column(nullable = false)
     private String contents;
 
-    @OneToMany(mappedBy = "post")
-    private List<Comment> comment = new ArrayList<>();
+    @OneToMany(mappedBy = "post", cascade = CascadeType.REMOVE)
+    private List<Comment> commentList = new ArrayList<>();
 
     public Post(PostRequestDto postRequestDto, Claims userInfo) {
         this.username = userInfo.getSubject();
@@ -35,4 +35,7 @@ public class Post extends Timestamped {
         this.contents = postRequestDto.getContents();
     }
 
+    public void removeCommentList(Comment comment){
+        this.commentList.remove(comment);
+    }
 }

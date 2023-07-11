@@ -1,6 +1,7 @@
 package com.sparta.springlv2project.service;
 
 import com.sparta.springlv2project.dto.CreateCommentDto;
+import com.sparta.springlv2project.dto.boardDto.PostResponseDto;
 import com.sparta.springlv2project.entity.Comment;
 import com.sparta.springlv2project.entity.Post;
 import com.sparta.springlv2project.entity.User;
@@ -41,6 +42,10 @@ public class CommentService {
     public ResponseEntity<String> deleteCommentById(Long commentId, HttpServletRequest req) {
         Comment comment = commentRepository.findById(commentId).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 댓글입니다."));
         comparePostUserAndUser(req, comment.getUser());
+        Post post = comment.getPost();
+//        System.out.println(new PostResponseDto(post).getCommentDtoList());
+        //양방향 객체 지향을 위한 remove
+        post.removeCommentList(comment);
         commentRepository.deleteById(commentId);
         return ResponseEntity.status(HttpStatus.OK).body("삭제 성공");
     }
